@@ -1,0 +1,47 @@
+# QFireNet Backend — Python Dependencies
+# Install with:  pip install -r requirements.txt
+
+# ── Web Framework ─────────────────────────────────────────────────────────────
+fastapi==0.115.5           # High-performance async web framework
+uvicorn[standard]==0.32.1  # ASGI server that runs FastAPI; [standard] adds websocket support
+
+# ── Database ──────────────────────────────────────────────────────────────────
+sqlalchemy==2.0.36         # ORM — maps Python classes to database tables
+psycopg2-binary==2.9.10    # PostgreSQL adapter for Python (binary = no C compiler needed)
+alembic==1.14.0            # Database migration tool — tracks schema changes over time
+
+# ── Configuration & Environment ───────────────────────────────────────────────
+pydantic==2.10.3           # Data validation — used by FastAPI for schemas
+pydantic-settings>=2.10.1,<3.0.0   # BaseSettings — loads config from .env files
+python-dotenv==1.0.1       # Reads .env files into os.environ at startup
+email-validator==2.2.0     # Required by Pydantic EmailStr fields (used in auth schemas)
+
+# ── Authentication ────────────────────────────────────────────────────────────
+python-jose[cryptography]==3.3.0  # JWT token creation and verification (JSON Web Tokens)
+passlib[bcrypt]==1.7.4            # Password hashing — bcrypt is the gold standard algorithm
+
+# ── File Upload Support ───────────────────────────────────────────────────────
+python-multipart==0.0.9    # Required for FastAPI to handle multipart/form-data (file uploads)
+
+# ── Domain Lookup ─────────────────────────────────────────────────────────────
+python-whois==0.9.4        # WHOIS queries — domain age, registrar info
+
+# ── APK Analysis ─────────────────────────────────────────────────────────────
+androguard==4.1.4          # Android APK/DEX analysis — extracts permissions, metadata
+
+# ── Groq LLM ─────────────────────────────────────────────────────────────────
+groq==0.12.0               # Official Groq Python SDK (OpenAI-compatible interface)
+
+# ── HTTP & Async Utilities ────────────────────────────────────────────────────
+httpx==0.27.2              # Async HTTP client (useful for future API integrations)
+
+# ── Rate Limiting (production-ready, Redis-optional) ─────────────────────────
+slowapi==0.1.9             # Starlette/FastAPI rate limiting (wraps limits library)
+limits==3.13.0             # Backend for slowapi — supports in-memory and Redis storage
+
+# ── OCR (email screenshot mode) ──────────────────────────────────────────────
+easyocr>=1.7.1             # Pure-Python OCR — no OS binary needed (uses PyTorch)
+Pillow>=10.0.0             # Image processing — open/preprocess screenshots before OCR
+numpy>=1.24.0              # Array conversion — EasyOCR expects NumPy image arrays
+                           # NOTE: EasyOCR downloads model weights (~100 MB) on first run
+                           #   and caches them in ~/.EasyOCR/ — no internet needed after that.

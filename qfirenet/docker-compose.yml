@@ -1,0 +1,111 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# QFireNet — Docker Compose Orchestration
+# ─────────────────────────────────────────────────────────────────────────────
+# Starts the full stack with a single command:
+#   docker-compose up --build
+#
+# Services:
+#   db        — PostgreSQL 16 database
+#   backend   — FastAPI application (Python 3.11)
+#   frontend  — React + nginx (production build)
+#
+# HOW DOCKER COMPOSE NETWORKING WORKS:
+#   All services are on the same virtual network ("qfirenet_net").
+#   Services reference each other by SERVICE NAME (e.g., backend connects to
+#   PostgreSQL using host "db" — not "localhost").
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── PostgreSQL Database ─────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine          # Official lightweight PostgreSQL image
+    container_name: qfirenet_db
+    environment:
+      POSTGRES_DB:       qfirenet      # Database name
+      POSTGRES_USER:     postgres      # Default superuser
+      POSTGRES_PASSWORD: postgres      # Change this in production!
+    volumes:
+      # Named volume: DB data persists across container restarts.
+      # Without this, all data is lost when the container stops.
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"                    # Expose for local psql / pgAdmin access
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d qfirenet"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - qfirenet_net
+
+
+  # ── FastAPI Backend ──────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend              # Build from backend/Dockerfile
+      dockerfile: Dockerfile
+    container_name: qfirenet_backend
+    # depends_on + condition: wait for DB to be healthy before starting
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # DATABASE_URL uses service name "db" (not localhost!) as the host.
+      DATABASE_URL:        postgresql://postgres:postgres@db:5432/qfirenet
+      GROQ_API_KEY:        ${GROQ_API_KEY:-}       # Read from host .env file
+      GROQ_MODEL:          llama-3.3-70b-versatile
+      GROQ_MAX_TOKENS:     512
+      JWT_SECRET_KEY:      ${JWT_SECRET_KEY:-change-me-in-production}
+      JWT_ALGORITHM:       HS256
+      JWT_EXPIRE_MINUTES:  1440
+      APP_NAME:            QFireNet
+      APP_VERSION:         1.0.0
+      DEBUG:               "false"
+    ports:
+      - "8000:8000"                    # Expose backend API
+    volumes:
+      # Mount source code for hot reload in development.
+      # Comment out for production (use baked image only).
+      - ./backend:/app
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - qfirenet_net
+
+
+  # ── React Frontend ───────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Pass the backend URL so Vite can embed it at build time.
+        # In Docker, the frontend (nginx) proxies /api to backend:8000.
+        VITE_API_URL: http://backend:8000
+    container_name: qfirenet_frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"                        # Access the app at http://localhost
+    networks:
+      - qfirenet_net
+
+
+# ── Named Volumes ────────────────────────────────────────────────────────────
+volumes:
+  postgres_data:                       # Persistent PostgreSQL storage
+
+
+# ── Shared Network ───────────────────────────────────────────────────────────
+networks:
+  qfirenet_net:
+    driver: bridge

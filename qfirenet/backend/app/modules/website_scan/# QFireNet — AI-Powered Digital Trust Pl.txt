@@ -1,0 +1,36 @@
+# QFireNet — AI-Powered Digital Trust Platform
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+    <script type="module" src="/@vite/client"></script>
+
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- SEO Meta Tags -->
+    <title>QFireNet — AI-Powered Digital Trust Platform</title>
+    <meta name="description" content="QFireNet analyses websites, emails, and APK files for cyber threats. Get an explainable AI trust score in seconds. Know Before You Trust." />
+    <meta name="keywords" content="cybersecurity, trust score, phishing detection, APK scanner, email security, SSL check, AI security" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="QFireNet — Know Before You Trust" />
+    <meta property="og:description" content="AI-powered digital trust & cyber risk assessment platform." />
+    <meta property="og:type" content="website" />
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
