@@ -1,7 +1,7 @@
 databases:
   - name: qfirenet-db
     databaseName: qfirenet
-    user: postgres
+    user: qfirenet_user
     plan: free
 
 services:
